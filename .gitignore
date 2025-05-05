@@ -1,0 +1,4 @@
+*.pyc
+.venv
+received_files
+tt.mp4
