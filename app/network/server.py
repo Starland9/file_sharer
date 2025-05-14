@@ -41,7 +41,7 @@ class FileReceiverServer:
                 threading.Thread(target=self.handle_client, args=(
                     client_socket, client_address)).start()
         except KeyboardInterrupt:
-            print("❌ Server stopped")
+            self.stop()
         finally:
             self.stop()
 
@@ -54,7 +54,14 @@ class FileReceiverServer:
         It is not necessary to call this method explicitly, as it is called automatically
         when the start method receives a KeyboardInterrupt (i.e. Ctrl+C is pressed).
         """
-        self.server_socket.close()
+        if self.server_socket:
+            try:
+                self.server_socket.close()
+                print("Server stopped")
+            except Exception as e:
+                print(f"Error closing the server socket: {e}")
+        self.server_socket = None
+
 
     def handle_client(self, client_socket: socket.socket, client_address):
         """
