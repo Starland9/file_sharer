@@ -10,7 +10,7 @@ class FileSenderClient:
         self.server_ip = server_ip
         self.server_port = server_port
 
-    def send_file(self, filepath):
+    def send_file(self, filepath, progress_callback=None):
         if not os.path.isfile(filepath):
             raise FileNotFoundError(f"File not found: {filepath}")
 
@@ -35,6 +35,8 @@ class FileSenderClient:
                             break
                         client_socket.sendall(chunk)
                         progress_bar.update(len(chunk))
+                        if progress_callback:
+                            progress_callback(progress_bar.n, progress_bar.total)
 
                 # Confirm file reception
                 response = client_socket.recv(1024).decode("utf-8")

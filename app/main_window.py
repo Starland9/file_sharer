@@ -20,6 +20,23 @@ class ServerWorker(QRunnable, QObject):
         self.server_started.emit()
         self.server.start()
 
+class ClientWorker(QRunnable, QObject):
+    progressUpdated = Signal(int, int)
+    file_sent = Signal()
+
+    def __init__(self, client: FileSenderClient, selected_file: str):
+        QObject.__init__(self)
+        QRunnable.__init__(self)
+        self.client = client
+        self.selected_file = selected_file
+
+    @Slot()
+    def run(self):
+        self.client.send_file(filepath=self.selected_file, progress_callback=self.update_progress)
+        self.file_sent.emit()
+
+    def update_progress(self, received, total):
+        self.progressUpdated.emit(received, total)
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -34,9 +51,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.ipAddressLineEdit.setText("127.0.0.1")
         self.portLineEdit.setText("5000")
+        self.sendBtn.setEnabled(False)
+        self.progressBar.setValue(0)
 
         self.startServerBtn.clicked.connect(self.toggle_server)
         self.selectFileBtn.clicked.connect(self.select_file)
+        self.sendBtn.clicked.connect(self.send_file)
 
     def toggle_server(self):
         if not self.is_server_running:
@@ -48,6 +68,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.stop_server()
 
 
+    def update_progress(self, received, total):
+        self.progressBar.setValue((received / total) * 100)
 
     def start_server(self):
         self.log("Server started")
@@ -67,6 +89,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.selected_file:
             self.filePathLineEdit.setText(self.selected_file)
             self.log(f"Selected file: {self.selected_file}")
+            self.sendBtn.setEnabled(True)
+
+    def send_file(self):
+        client = FileSenderClient(self.ipAddressLineEdit.text(), int(self.portLineEdit.text()))
+        worker = ClientWorker(client, self.selected_file)
+        worker.progressUpdated.connect(self.update_progress)
+        self.threadpool.start(worker)
 
     def log(self, text: str):
         self.logsTextBrowser.append(text)
