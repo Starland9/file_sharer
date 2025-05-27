@@ -1,4 +1,4 @@
-name: Build macOS App
+name: Build macOS App (Universal)
 
 on:
   push:
@@ -6,7 +6,12 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x86_64, arm64]
+    runs-on: macos-12
+    env:
+      ARCH: ${{ matrix.arch }}
 
     steps:
       # 1. Récupération du code source
@@ -18,6 +23,7 @@ jobs:
         uses: actions/setup-python@v5.6.0
         with:
           python-version: '3.12'
+          architecture: ${{ matrix.arch }}
 
       # 3. Installation des dépendances
       - name: Install dependencies
@@ -26,22 +32,38 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      # 4. Construction de l’application
+      # 4. Construction de l'application
       - name: Build the application with PyInstaller
         run: |
           pyinstaller --noconfirm --onefile --windowed \
-            --name "FileSharer" \
+            --name "FileSharer_$ARCH" \
+            --target-architecture $ARCH \
             --add-data "app/style:app/style" \
             --add-data "app/ui:app/ui" \
             --hidden-import="PySide6.QtXml" \
             app/main.py
 
-      # 5. Création du DMG
+      # 5. Préparation pour l'assemblage
+      - name: Prepare for universal build
+        run: |
+          mkdir -p dist/universal
+          cp "dist/FileSharer_$ARCH" "dist/universal/FileSharer_$ARCH"
+
+      # 6. Création du binaire universel (uniquement sur arm64)
+      - name: Create universal binary
+        if: matrix.arch == 'arm64'
+        run: |
+          cd dist/universal
+          lipo -create -output FileSharer FileSharer_x86_64 FileSharer_arm64
+          chmod +x FileSharer
+
+      # 7. Création du DMG (uniquement sur arm64)
       - name: Create DMG installer
+        if: matrix.arch == 'arm64'
         run: |
           brew install create-dmg
-          mkdir -p dist/dmg
-          cp -r "dist/FileSharer.app" dist/dmg/
+          mkdir -p dist/dmg/FileSharer.app/Contents/MacOS
+          cp dist/universal/FileSharer dist/dmg/FileSharer.app/Contents/MacOS/FileSharer
           create-dmg \
             --volname "FileSharer" \
             --window-pos 200 120 \
@@ -49,14 +71,15 @@ jobs:
             --icon-size 100 \
             --icon "FileSharer.app" 175 120 \
             --app-drop-link 425 120 \
-            "dist/FileSharer.dmg" \
+            "dist/FileSharer_Universal.dmg" \
             "dist/dmg/"
 
-      # 6. Upload des artefacts
+      # 8. Upload des artefacts
       - name: Upload build artifacts
+        if: matrix.arch == 'arm64'
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: FileSharer-macOS
+          name: FileSharer-macOS-Universal
           path: |
-            dist/FileSharer
-            dist/FileSharer.dmg
+            dist/FileSharer_Universal.dmg
+            dist/universal/FileSharer
