@@ -78,11 +78,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.startServerBtn.setText("Stop Server")
 
     def stop_server(self):
-        self.log("Server stopped")
+        if self.server:
+            self.log("Stopping server...")
+            self.server.stop()
+            self.server = None
         self.is_server_running = False
         self.startServerBtn.setText("Start Server")
-        self.server.stop()
-        self.server = None
+        self.log("Server stopped")
 
     def select_file(self):
         self.selected_file, _ = QFileDialog.getOpenFileName()

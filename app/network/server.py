@@ -22,6 +22,8 @@ class FileReceiverServer:
         self.port = port
         self.save_dir = save_dir
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.running = False
         os.makedirs(self.save_dir, exist_ok=True)
 
     def start(self):
@@ -33,13 +35,19 @@ class FileReceiverServer:
         """
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen(5)
+        self.server_socket.settimeout(1) # Set a timeout for very self.running
+        self.running = True
         print(f"Listening on {self.host}:{self.port}")
 
         try:
-            while True:
-                client_socket, client_address = self.server_socket.accept()
-                threading.Thread(target=self.handle_client, args=(
-                    client_socket, client_address)).start()
+            while self.running:
+                try:
+                    client_socket, client_address = self.server_socket.accept()
+                    threading.Thread(target=self.handle_client, args=(
+                        client_socket, client_address)).start()
+
+                except socket.timeout:
+                    continue
         except KeyboardInterrupt:
             self.stop()
         finally:
@@ -54,13 +62,16 @@ class FileReceiverServer:
         It is not necessary to call this method explicitly, as it is called automatically
         when the start method receives a KeyboardInterrupt (i.e. Ctrl+C is pressed).
         """
-        if self.server_socket:
-            try:
+        self.running = False
+        try:
+            if self.server_socket:
+                print("Stopping server...")
                 self.server_socket.close()
                 print("Server stopped")
-            except Exception as e:
-                print(f"Error closing the server socket: {e}")
-        self.server_socket = None
+        except Exception as e:
+            print(f"Error closing the server socket: {e}")
+        finally:
+            self.server_socket = None
 
 
     def handle_client(self, client_socket: socket.socket, client_address):
