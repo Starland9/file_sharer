@@ -2,3 +2,5 @@
 .venv
 received_files
 tt.mp4
+build
+dist

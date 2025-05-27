@@ -3,9 +3,9 @@ import threading
 from PySide6.QtCore import QRunnable, Slot, Signal, QThreadPool, QObject
 from PySide6.QtWidgets import QMainWindow, QFileDialog
 
-from ui.main_window_ui import Ui_MainWindow
-from network.client import FileSenderClient
-from network.server import FileReceiverServer
+from app.ui.main_window_ui import Ui_MainWindow
+from app.network.client import FileSenderClient
+from app.network.server import FileReceiverServer
 
 class ServerWorker(QRunnable, QObject):
     server_started = Signal()

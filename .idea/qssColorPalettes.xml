@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="QssColorPaletteManager">
+    <option name="palettes">
+      <list>
+        <SerializablePalette>
+          <option name="colors">
+            <list>
+              <SerializableColor>
+                <option name="hexValue" value="#99CCFF" />
+                <option name="name" value="blue" />
+              </SerializableColor>
+            </list>
+          </option>
+          <option name="name" value="light" />
+        </SerializablePalette>
+      </list>
+    </option>
+  </component>
+</project>

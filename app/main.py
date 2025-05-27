@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import QApplication
 
 from app.style.style import get_style
-from main_window import MainWindow
+from app.main_window import MainWindow
 
 if __name__ == "__main__":
     app = QApplication([])

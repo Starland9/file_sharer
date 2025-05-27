@@ -1,0 +1,1 @@
+rm -rf build/ dist/ && .venv/bin/pyinstaller --noconfirm --onefile --windowed --name file_sharer --add-data "app/style:app/style" --add-data "app/ui:app/ui" --hidden-import="PySide6.QtXml" app/main.py
