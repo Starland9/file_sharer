@@ -1,61 +1,126 @@
 # File Sharer
 
-File Sharer est un utilitaire de transfert de fichiers qui permet d'envoyer des fichiers d'un client à un serveur sur un réseau. Ce projet utilise Python et offre une interface en ligne de commande pour une utilisation facile.
+File Sharer est une application de transfert de fichiers simple et intuitive avec une interface graphique moderne. Elle permet de partager facilement des fichiers entre différents appareils sur un réseau local.
 
-## Fonctionnalités
+![File Sharer Screenshot](https://github.com/Starland9/file_sharer/raw/main/screenshot.png)
 
-- Envoi de fichiers à un serveur via une connexion socket.
-- Suivi de la progression de l'envoi de fichiers grâce à `tqdm`.
-- Exécution du serveur et du client en parallèle.
-- Interface en ligne de commande avec des sous-commandes pour envoyer des fichiers ou démarrer un serveur.
+## 📋 Fonctionnalités
 
-## Installation
+- Interface utilisateur graphique intuitive
+- Transfert de fichiers sur réseau local
+- Barre de progression en temps réel
+- Support multi-plateforme (Windows, macOS, Linux)
+- Binaires pré-compilés disponibles dans les [releases](https://github.com/Starland9/file_sharer/releases)
+- Support des architectures x86_64 et arm64 (Apple Silicon)
+
+## 🚀 Téléchargement
+
+Téléchargez la dernière version pour votre système d'exploitation dans la section [Releases](https://github.com/Starland9/file_sharer/releases).
+
+| Plateforme | Fichier |
+|------------|---------|
+| Windows | `FileSharer_Windows_x86_64.exe` |
+| macOS (Intel) | `FileSharer_macOS_x86_64.dmg` |
+| macOS (Apple Silicon) | `FileSharer_macOS_arm64.dmg` |
+| macOS (Universel) | `FileSharer_macOS_Universal.dmg` |
+| Linux | `FileSharer_Linux_x86_64` |
+
+## 🛠 Installation manuelle
+
+### Prérequis
+
+- Python 3.8 ou supérieur
+- pip (gestionnaire de paquets Python)
+
+### Étapes d'installation
 
 1. Clonez le dépôt :
    ```bash
-   git clone <URL_DU_DEPOT>
+   git clone https://github.com/Starland9/file_sharer.git
    cd file_sharer
    ```
 
-2. Installez les dépendances :
+2. Créez et activez un environnement virtuel (recommandé) :
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Sur Windows : venv\Scripts\activate
+   ```
+
+3. Installez les dépendances :
    ```bash
    pip install -r requirements.txt
    ```
 
-## Utilisation
+## 🖥 Utilisation
 
-### Démarrer le serveur
-
-Pour démarrer le serveur, utilisez la commande suivante :
+### Lancer l'application
 
 ```bash
-python app/main.py serve --host <ADRESSE_IP> --port <PORT>
+python app/main.py
 ```
 
-### Envoyer un fichier
+### Comment utiliser
 
-Pour envoyer un fichier au serveur, utilisez la commande suivante :
+1. **Démarrer un serveur** :
+   - Entrez l'adresse IP de votre machine (ou laissez 0.0.0.0 pour toutes les interfaces)
+   - Choisissez un port (par défaut : 5000)
+   - Cliquez sur "Start Server"
 
+2. **Envoyer un fichier** :
+   - Entrez l'adresse IP et le port du serveur distant
+   - Cliquez sur "Select File" pour choisir un fichier
+   - Cliquez sur "Send File" pour lancer le transfert
+
+## 🛠 Compilation
+
+Si vous souhaitez compiler vous-même l'application :
+
+### Sous Linux :
 ```bash
-python app/main.py send <ADRESSE_IP> <CHEMIN_VERS_LE_FICHIER>
+chmod +x build_linux.sh
+./build_linux.sh
 ```
 
-## Exemples
+### Pour Windows (depuis Linux) :
+```bash
+pip install pyinstaller
+pyinstaller --noconfirm --onefile --windowed \
+  --name "FileSharer" \
+  --add-data "app/style:app/style" \
+  --add-data "app/ui:app/ui" \
+  --hidden-import="PySide6.QtXml" \
+  app/main.py
+```
 
-- Démarrer le serveur sur le port 5000 :
-  ```bash
-  python app/main.py serve --port 5000
-  ```
+### Pour macOS (via GitHub Actions) :
 
-- Envoyer un fichier `test.txt` au serveur :
-  ```bash
-  python app/main.py send 127.0.0.1 test.txt
-  ```
+1. Poussez vos modifications sur GitHub
+2. Allez dans l'onglet "Actions"
+3. Sélectionnez le workflow "Build macOS App (Universal)"
+4. Téléchargez les artefacts générés
 
-## Contribuer
+## 🐛 Dépannage
 
-Les contributions sont les bienvenues ! Veuillez soumettre une demande de tirage pour toute amélioration ou correction de bogue.
+- **Erreur de port déjà utilisé** : Assurez-vous qu'aucune autre instance du serveur ne tourne
+- **Problèmes de connexion** : Vérifiez votre pare-feu et assurez-vous que les machines sont sur le même réseau
+- **Fichier non trouvé** : Vérifiez que le chemin du fichier est correct et que vous avez les permissions nécessaires
 
-## License
+## 🤝 Contribuer
 
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus d'informations.
+Les contributions sont les bienvenues ! Voici comment contribuer :
+
+1. Forkez le projet
+2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
+3. Committez vos modifications (`git commit -m 'Add some AmazingFeature'`)
+4. Poussez vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
+
+## 📝 Licence
+
+Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+## 🙏 Remerciements
+
+- [PySide6](https://www.qt.io/qt-for-python) - Pour l'interface graphique
+- [tqdm](https://github.com/tqdm/tqdm) - Pour les barres de progression
+- [GitHub Actions](https://github.com/features/actions) - Pour l'intégration continue
